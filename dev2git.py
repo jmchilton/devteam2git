@@ -12,7 +12,7 @@ OWNER = "devteam"
 tempdir = tempfile.mkdtemp()
 
 MERGE_REPOS = {
-    "gatk_tools": [
+    "suite_gatk": [
         "analyze_covariates",
         "count_covariates",
         "depth_of_coverage",
@@ -30,7 +30,7 @@ MERGE_REPOS = {
         "variant_select",
         "variants_validate",
     ],
-    "gops_tools": [
+    "suite_gops": [
         "basecoverage",
         "cluster",
         "complement",
@@ -44,7 +44,36 @@ MERGE_REPOS = {
         "subtract",
         "subtract_query",
         "tables_arithmetic_operations",
-    ]
+    ],
+    "suite_fastx_toolkit": [
+        "fasta_clipping_histogram",
+        "fasta_formatter",
+        "fasta_nucleotide_changer",
+        "fastq_quality_boxplot",
+        "fastq_quality_converter",
+        "fastq_quality_filter",
+        "fastq_to_fasta",
+        "fastx_artifacts_filter",
+        "fastx_barcode_splitter",
+        "fastx_clipper",
+        "fastx_collapser",
+        "fastx_nucleotides_distribution",
+        "fastx_quality_statistics",
+        "fastx_renamer",
+        "fastx_reverse_complement",
+        "fastx_trimmer",
+    ],
+    "suite_samtools": [
+        "data_manager_sam_fasta_index_builder",
+        "bam_to_sam",
+        "pileup_interval",
+        "sam_to_bam",
+        "samtools_flagstat",
+        "samtools_phase",
+        "samtools_rmdup",
+        "samtools_mpileup",
+        "samtools_slice_bam",
+    ],
 }
 
 

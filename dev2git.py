@@ -74,7 +74,28 @@ MERGE_REPOS = {
         "samtools_mpileup",
         "samtools_slice_bam",
     ],
+    "suite_hgv": [
+        "hgv_hilbertvis",
+        "snpfreq",
+        "hgv_fundo",
+    ],
+    "suite_cufflinks": [
+        "cufflinks",
+        "cuffcompare",
+        "cuffmerge",
+        "cuffdiff",
+    ],
+    "suite_vcftools": [
+        "vcftools_annotate",
+        "vcftools_compare",
+        "vcftools_isec",
+        "vcftools_merge",
+        "vcftools_slice",
+        "vcftools_subset",
+    ],
 }
+
+SUDO_REPOSITORY_SUITES = [ "all_cufflinks_tool_suite", "all_vcftools" ]
 
 
 def list():

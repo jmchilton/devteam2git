@@ -86,19 +86,32 @@ def build():
     execute("rm -rf repo")
     execute("mkdir repo")
     with lcd("repo"):
-        execute("mkdir tools suites packages")
+        execute("mkdir tools suites packages datatypes data_managers visualisations") #vis will be empty, needs a gitignore file
         execute("git init .")
         for repo in dev_repos():
             repo_type = repo[ "type" ]
             if repo_type == "tool_dependency_definition":
                 clone_package(repo)
             elif repo_type == "unrestricted":
-                clone_tool(repo)
+                if repo["name"].find('data_manager') != -1:
+                    clone_data_managers(repo)
+                elif repo["name"].find('datatype') != -1:
+                    clone_datatypes(repo)
+                else:
+                    clone_tool(repo)
             elif repo_type == "repository_suite_definition":
                 clone_suite(repo)
             else:
                 print "WARN: Unhandled repo type %s" % repo_type
 
+
+def clone_datatypes(repo):
+    with lcd("datatypes"):
+        clone_repo(repo)
+
+def clone_data_managers(repo):
+    with lcd("data_managers"):
+        clone_repo(repo)
 
 def clone_package(repo):
     with lcd("packages"):

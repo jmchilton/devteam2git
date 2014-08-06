@@ -56,9 +56,14 @@ def dev_repos():
 
 
 def clone_repo(repo):
-    execute("hg clone %s/repos/%s/%s" % (TOOLSHED, repo["owner"], repo["name"]))
-    execute("rm -rf .hg")
-
+    repository_url = "%s/repos/%s/%s %s" % (TOOLSHED, repo["owner"], repo["name"], repo["name"])
+    execute("hg clone %s" % repository_url)
+    with lcd(repo["name"]):
+        execute("rm -rf .hg")
+        execute("git add .")
+        msg1 = "Initial import of tool shed repository %s" % repo["name"]
+        msg2 = "See %s for previous commit history." % repository_url
+        execute('''git commit -m "%s" -m "%s"''' % (msg1, msg2))
 
 def summarize_repo(repo):
     print "name: %s, type %s, id %s" % ( repo[ "name" ], repo["type"], repo["id"] )

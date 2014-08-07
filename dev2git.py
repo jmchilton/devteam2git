@@ -149,8 +149,10 @@ def build():
     execute("mkdir repo")
     with lcd("repo"):
         # vis will be empty, needs a gitignore file
-        execute("mkdir -p tools tool_collections suites packages datatypes data_managers visualisations")
         execute("git init .")
+        execute('touch README')
+        execute('git add README')
+        execute('''git commit --author="devteam <galaxy-lab@bx.psu.edu>" -m "Add empty README to the master branch"''')
         for repo in dev_repos():
             repo_name = repo[ "name" ]
             repo_type = repo[ "type" ]
@@ -172,35 +174,33 @@ def build():
 
 
 def clone_datatypes(repo):
-    with lcd("datatypes"):
-        clone_repo(repo)
+    directory_name = "datatypes/%s" % repo['name']
+    clone_repo(repo, directory_name)
 
 
 def clone_data_managers(repo):
-    with lcd("data_managers"):
-        clone_repo(repo)
+    directory_name = "data_managers/%s" % repo['name']
+    clone_repo(repo, directory_name)
 
 
 def clone_package(repo):
-    with lcd("packages"):
-        clone_repo(repo)
+    directory_name = "packages/%s" % repo['name']
+    clone_repo(repo, directory_name)
 
 
 def clone_tool(repo):
     collection_name = get_repo_collection(repo)
     if collection_name:
-        with lcd("tool_collections"):
-            execute("mkdir -p %s" % collection_name)
-            with lcd(collection_name):
-                clone_repo(repo)
+        directory_name = "tool_collections/%s/%s" % (collection_name, repo['name'])
+        clone_repo(repo, directory_name)
     else:
-        with lcd("tools"):
-            clone_repo(repo)
+        directory_name = "tools/%s" % repo['name']
+        clone_repo(repo, directory_name)
 
 
 def clone_suite(repo):
-    with lcd("suites"):
-        clone_repo(repo)
+    directory_name = "suites/%s" % repo['name']
+    clone_repo(repo, directory_name)
 
 
 def dev_repos():
@@ -210,36 +210,18 @@ def dev_repos():
     return repos
 
 
-def clone_repo(repo):
+def clone_repo(repo, directory_name):
     repository_url = "%s/repos/%s/%s" % (TOOLSHED, repo["owner"], repo["name"])
-    directory_name = destination_directory(repo)
-    execute("hg clone %s %s/%s" % (repository_url, tempdir, repo["name"]))
+    execute("git checkout --orphan %s" % repo['name'])
+    execute('git rm -rf .')
+    execute("git clone 'hg::%s' %s/%s" % (repository_url, tempdir, repo['name']))
+    execute("git pull %s/%s" % (tempdir, repo['name']))
+    execute("rm -rf %s/%s" % (tempdir, repo['name']))
     execute("mkdir -p %s" % directory_name)
-    with lcd(directory_name):
-        execute("cp -r %s/%s/* ." % (tempdir, repo["name"]))
-        execute("rm -rf %s/%s" % (tempdir, repo["name"]))
-        execute("rm -rf .hg")
-        execute("git add .")
-        msg1 = "Initial import of tool shed repository %s" % repo["name"]
-        msg2 = "See %s for previous commit history." % repository_url
-        execute('''git commit --author="devteam <galaxy-lab@bx.psu.edu>" -m "%s" -m "%s"''' % (msg1, msg2))
-
-
-def destination_directory(repo):
-    destination = repo["name"]  # By default just keep in same directory name..
-
-    # Was trying to merge the repositories so macro files, wrappers, and
-    # tool-data, etc.. weren't duplicated - but it looks like Dave B. has
-    # done a meticulous job separating out test-data into the correct repo
-    # so I guess it might be best to just keep it one directory per repo here
-    # and go through later and replace things with symbolic links which would
-    # be resolved when uploading tar balls to the tool shed.
-
-    #for suite, repos in NEST_REPOS.iteritems():
-    #    if destination in repos:
-    #        destination = suite
-    #        break
-    return destination
+    execute("git filter-branch -f --tree-filter 'mkdir -p %s; git ls-tree --name-only $GIT_COMMIT | xargs -I files mv files %s'" % (directory_name, directory_name))
+    execute('git checkout master')
+    execute("git merge %s" % repo['name'])
+    execute("git branch -d %s" % repo['name'])
 
 
 def get_repo_collection(repo):

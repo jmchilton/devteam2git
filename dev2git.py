@@ -12,6 +12,7 @@ from bioblend import toolshed
 
 TOOLSHED = "https://toolshed.g2.bx.psu.edu"
 OWNER = "devteam"
+RESUME = False
 
 tempdir = tempfile.mkdtemp()
 
@@ -145,14 +146,18 @@ def list():
 
 
 def build():
-    execute("rm -rf repo")
-    execute("mkdir repo")
+    if not RESUME:
+        execute("rm -rf repo")
+        execute("mkdir repo")
+
     with lcd("repo"):
         # vis will be empty, needs a gitignore file
-        execute("git init .")
-        execute('touch README')
-        execute('git add README')
-        execute('''git commit --author="devteam <galaxy-lab@bx.psu.edu>" -m "Add empty README to the master branch"''')
+        if not RESUME:
+            execute("git init .")
+            execute('touch README')
+            execute('git add README')
+            execute('''git commit --author="devteam <galaxy-lab@bx.psu.edu>" -m "Add empty README to the master branch"''')
+
         for repo in dev_repos():
             repo_name = repo[ "name" ]
             repo_type = repo[ "type" ]
@@ -211,6 +216,7 @@ def dev_repos():
 
 
 def clone_repo(repo, directory_name):
+    # TODO: something in here with RESUME to make the option actually work.
     repository_url = "%s/repos/%s/%s" % (TOOLSHED, repo["owner"], repo["name"])
     execute("git checkout --orphan %s" % repo['name'])
     execute('git rm -rf .')
@@ -220,7 +226,7 @@ def clone_repo(repo, directory_name):
     execute("mkdir -p %s" % directory_name)
     execute("git filter-branch -f --tree-filter 'mkdir -p %s; git ls-tree --name-only $GIT_COMMIT | xargs -I files mv files %s'" % (directory_name, directory_name))
     execute('git checkout master')
-    execute("git merge %s" % repo['name'])
+    execute("""git merge -m "Merging tool shed devteam repository %s." %s""" % (repo['name'], repo['name']))
     execute("git branch -d %s" % repo['name'])
 
 
@@ -241,14 +247,18 @@ def execute(cmd):
 
 
 def main():
-    global TOOLSHED
+    global TOOLSHED, RESUME
 
     parser = argparse.ArgumentParser()
     parser.add_argument('action', metavar='action', type=str)
     parser.add_argument('--shed', type=str, default="main")
+    parser.add_argument('--resume', action="store_true", default=False)
+
     args = parser.parse_args()
     if args.shed == "dev":
         TOOLSHED = "https://testtoolshed.g2.bx.psu.edu"
+    if args.resume:
+        RESUME = True
     try:
         eval(args.action)()
     finally:

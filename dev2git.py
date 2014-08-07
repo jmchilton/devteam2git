@@ -14,8 +14,13 @@ OWNER = "devteam"
 
 tempdir = tempfile.mkdtemp()
 
-# These have real homes elsewhere...
-EXCLUDE_REPOS = ["ncbi_blast_plus", "blast_datatypes"]
+EXCLUDE_REPOS = [
+    # These have real homes elsewhere...
+    "ncbi_blast_plus",
+    "blast_datatypes",
+    # This is empty and crashes the script...
+    "star",
+]
 
 NEST_REPOS = {
     "gatk": [
@@ -250,9 +255,14 @@ def execute(cmd):
 
 
 def main():
+    global TOOLSHED
+
     parser = argparse.ArgumentParser()
     parser.add_argument('action', metavar='action', type=str)
+    parser.add_argument('--shed', type=str, default="main")
     args = parser.parse_args()
+    if args.shed == "dev":
+        TOOLSHED = "https://testtoolshed.g2.bx.psu.edu"
     eval(args.action)()
 
 

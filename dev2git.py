@@ -18,6 +18,9 @@ EXCLUDE_REPOS = [
     # These have real homes elsewhere...
     "ncbi_blast_plus",
     "blast_datatypes",
+    "freebayes",
+    # Deprecated repos that devteam does not intend to maintain...
+    "freebayes_wrapper",
     # This is empty and crashes the script...
     "star",
 ]

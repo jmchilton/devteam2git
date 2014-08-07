@@ -5,6 +5,7 @@
 
 import argparse
 import tempfile
+import shutil
 from fabric.api import local
 from fabric.context_managers import lcd
 from bioblend import toolshed
@@ -266,7 +267,10 @@ def main():
     args = parser.parse_args()
     if args.shed == "dev":
         TOOLSHED = "https://testtoolshed.g2.bx.psu.edu"
-    eval(args.action)()
+    try:
+        eval(args.action)()
+    finally:
+        shutil.rmtree(tempdir)
 
 
 if __name__ == "__main__":
